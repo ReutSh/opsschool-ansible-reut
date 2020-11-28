@@ -1,0 +1,44 @@
+---
+# vars file for role
+pkg_uninstall_ubuntu:
+  - docker
+  - docker-engine
+  - docker.io
+  - contain
+
+pkg_uninstall_rhel:
+  - docker
+  - docker-client
+  - docker-ciient-latest
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate
+  - docker-engine 
+
+install_pkg_ubuntu:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+  - python3-pip
+  - virtualenv
+  - python3-setuptools
+
+install_pkg_centos:
+  - yum-utils
+  - device-mapper-persistent-data
+  - lvm2
+  - python3-pip
+  
+
+docker_gpg_id_ubuntu: "0EBFCD88"
+
+name_container: "nginx_reut" 
+
+url_docker_gpg: https://download.docker.com/linux/ubuntu/gpg
+
+centos_pkg_install_pip: 
+  - epel-release
+  - python-pip
