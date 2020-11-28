@@ -1,0 +1,28 @@
+---
+- name: Docker_install_ubuntu
+  hosts: ubuntu_nodes
+  become: true
+  roles: 
+    - install_docker_role
+
+# - name: Docker_install_centos
+#   hosts: centos_nodes
+#   become: true
+#   roles: 
+#     - install_docker_role
+
+
+
+
+# ---
+# - name: Docker_install_ubuntu
+#   hosts: ubuntu_nodes
+#   become: true
+#   roles: 
+#     - install_docker_role
+  
+# - name: Docker_install_centos
+#   hosts: centos_nodes
+#   become: true
+#   roles: 
+#     - install_docker_role

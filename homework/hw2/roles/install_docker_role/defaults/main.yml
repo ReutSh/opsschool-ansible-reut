@@ -1,0 +1,16 @@
+---
+# defaults file for roles
+version_ubuntu_docker_ce:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+
+version_docker_centos:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+
+docker_users:
+  - "{{ansible_user}}"
+  - reut
+  - johnny

@@ -1,0 +1,119 @@
+---
+# tasks file for install_docker_role
+- name: Uninstall older Docker versions
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ pkg_uninstall_ubuntu }}"
+  when:
+    ansible_distribution == "Ubuntu"
+
+- name: Uninstall older Docker versions
+  yum:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ pkg_uninstall_rhel }}"
+  when:
+    ansible_os_family == "RedHat"   
+
+- name: "APT - install misc packages"
+  apt:
+    name: "{{ item }}" 
+    update_cache: yes
+  loop: "{{ install_pkg_ubuntu }}" 
+  when:
+    - ansible_distribution == "Ubuntu"
+
+- name: Install required pack
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ install_pkg_centos }}"
+  when:
+    ansible_os_family == "RedHat"
+
+- name: Add docker's official GPG key
+  apt_key:
+    id: "{{ docker_gpg_id_ubuntu }}"
+    url: "{{ url_docker_gpg }}"
+    state: present
+  when: 
+    ansible_distribution == "Ubuntu"
+
+- name: APT Add Docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+    filename: docker-ce
+  when:
+    ansible_distribution == "Ubuntu"
+
+- name: Add Docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+  when:
+    ansible_os_family == "RedHat"
+
+- name: Enable Docker Edge repo
+  ini_file:
+    dest: /etc/yum.repos.d/docer-ce.repo
+    section: docker-ce-edge
+    option: enabled
+    value: 0
+  become: yes
+  when:
+    ansible_os_family == "RedHat"
+
+- name: APT install 'docker-ce'
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop: "{{ version_ubuntu_docker_ce }}"
+  when:
+    ansible_distribution == "Ubuntu"
+  notify:
+    - Restart docker
+
+- name: Install Docker
+  package:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  loop: "{{version_docker_centos }}"
+  when:
+    ansible_os_family == "RedHat"
+  notify: 
+    - Start docker    
+
+- name: Install pip 
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ centos_pkg_install_pip }}"
+  when:
+    ansible_os_family == "RedHat"
+
+- name: install docker module for python
+  pip:
+    name: docker
+    state: present
+  
+- name: adding users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  loop: "{{ docker_users }}"
+
+- name: Flush handler (restart docker)
+  meta: flush_handlers
+
+- name: Create a data container
+  docker_container:
+    name: "{{ name_container }}"
+    image: nginx
+    state: started
+    detach: yes
+    ports:  # Publish container port 80 as host port 8080
+      - "8080:80"
